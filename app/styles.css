@@ -1,0 +1,33 @@
+.container {
+    padding: 20px;
+  }
+  
+  .law-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .law-card h3 {
+    margin: 0 0 10px;
+  }
+  
+  .pagination {
+    margin-top: 20px;
+  }
+  
+  .pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .pagination .active {
+    background-color: #0056b3;
+  }

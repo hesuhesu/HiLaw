@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API: string = process.env.NEXT_PUBLIC_API_NUMBER as string;
 
-export default async function Detail() {
+export default async function Detail(id: number) {
     
     const response = await axios.get(`${API}${200300}`);
     const data = response.data.PrecService;

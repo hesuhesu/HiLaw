@@ -1,15 +1,16 @@
 <template>
-  <div>
-    <h1>Home 페이지</h1>
-    <input type="text" v-model="inputValue" placeholder="값을 입력하세요">
-    <button @click="submitValue">제출</button>
-
-    <div v-if="result">
-      <h2>결과:</h2>
+  <div class="home">
+    <div class="home-header">
+      <h1>판례 번호를 입력하세요</h1>
+      <input type="text" v-model="inputValue" placeholder="값을 입력하세요">
+      <button @click="submitValue">검색</button>
+    </div>
+    <div v-if="result" class="result">
+      <h2>판례 결과</h2>
       <p>판례정보일련번호: {{ result.판례정보일련번호 }}</p>
       <p>사건명: {{ result.사건명 }}</p>
       <p>선고 일자: {{ result.선고일자 }}</p>
-      <p>판례 내용: {{ result.판례내용}}</p>
+      <p v-html="result.판례내용"/>
     </div>
   </div>
 </template>
@@ -42,10 +43,85 @@ const submitValue = async () => {
     };
   } catch (error) {
     console.error('API 요청 실패:', error); // 에러 처리
+    result.value = {
+      판례정보일련번호: null,
+      사건명: null,
+      선고일자: null,
+      판례내용: null
+    };
   }
 };
+
 </script>
 
 <style>
-/* 스타일이 필요하면 여기에 추가 */
+.home {
+  display: grid;
+  min-height: 100vh;
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-items: center;
+  background-color: #f9f9f9; /* 배경색 */
+  padding: 20px;
+}
+
+.home-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* 간격 */
+  max-width: 600px; /* 최대 너비 */
+  width: 100%; /* 전체 너비 */
+}
+
+.home-header h1 {
+  font-size: 50px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc; /* 테두리 */
+  border-radius: 5px; /* 둥근 모서리 */
+  font-size: 16px; /* 글자 크기 */
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px; /* 둥근 모서리 */
+  background-color: #007bff; /* 버튼 색상 */
+  color: white; /* 글자 색상 */
+  cursor: pointer; /* 커서 변경 */
+  font-size: 16px; /* 글자 크기 */
+}
+
+button:hover {
+  background-color: #0056b3; /* 호버 효과 */
+}
+
+.result {
+  display: grid;
+  grid-template-columns: 1fr; /* 한 열로 표시 */
+  gap: 15px; /* 간격 */
+  width: 70vw; /* 전체 너비 */
+  margin-top: 20px; /* 상단 여백 */
+  padding: 20px;
+  background-color: #fff; /* 결과 배경색 */
+  border: 1px solid #ddd; /* 테두리 */
+  border-radius: 5px; /* 둥근 모서리 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  overflow-wrap: break-word; /* 긴 단어를 줄바꿈 */
+}
+
+.result h2 {
+  font-size: 30px;
+  text-align: center;
+}
+
+p {
+  margin: 10px 0; /* 문단 간격 */
+  font-size: 16px; /* 글자 크기 */
+  color: #333; /* 글자 색상 */
+}
 </style>

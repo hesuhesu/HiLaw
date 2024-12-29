@@ -2,45 +2,36 @@
   <div class="home">
     <div class="home-header">
       <h1>법률 판례 검색</h1>
-      <input type="text" v-model="inputValue" placeholder="검색어를 입력하세요" />
+      <input type="text" v-model="tempInputValue" placeholder="검색어를 입력하세요" />
       <button @click="submitValue">검색</button>
     </div>
     <div class="result" v-if="search">
-      <h2>"{{inputValue}}" 검색 결과({{totalCnt}}개)</h2>
+      <h2>"{{ inputValue }}" 검색 결과 ({{ totalCnt }}개)</h2>
       <div v-if="Array.isArray(search)">
-        <div v-for="(item, index) in search" :key="index" @click="navigateToDetail(item.판례일련번호)">
-          <p><strong>사건명:</strong> {{ item.사건명 }}</p>
-          <p><strong>사건번호:</strong> {{ item.사건번호 }}</p>
-          <p><strong>사건종류:</strong> {{ item.사건종류명 }}</p>
-          <p><strong>선고일자:</strong> {{ item.선고일자 }}</p>
-          <p><strong>법원명:</strong> {{ item.법원명 }}</p>
-          <p><strong>판결유형:</strong> {{ item.판결유형 }}</p>
-          <p><strong>선고:</strong> {{ item.선고 }}</p>
-          <p><strong>판례일련번호:</strong> {{ item.판례일련번호 }}</p>
-          <hr/>
-        </div>
+        <CaseItem
+          v-for="(item, index) in paginatedResults"
+          :key="index"
+          :item="item"
+          @navigate="navigateToDetail"
+        />
+        <Pagination 
+          :current-page="currentPage" 
+          :total-pages="totalPages" 
+          @page-changed="handlePageChange" />
       </div>
       <div v-else>
-        <p @click="navigateToDetail(search.판례일련번호)">
-          <strong>사건명:</strong> {{ search.사건명 }}<br />
-          <strong>사건번호:</strong> {{ search.사건번호 }}<br />
-          <strong>사건종류:</strong> {{ search.사건종류명 }}<br />
-          <strong>선고일자:</strong> {{ search.선고일자 }}<br />
-          <strong>법원명:</strong> {{ search.법원명 }}<br />
-          <strong>판결유형:</strong> {{ search.판결유형 }}<br />
-          <strong>선고:</strong> {{ search.선고 }}<br />
-          <strong>판례일련번호:</strong> {{ search.판례일련번호 }}
-        </p>
-        <hr/>
+        <CaseItem :item="search" @navigate="navigateToDetail" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import CaseItem from '../components/Home/CaseItem.vue';
+import Pagination from '../components/Home/Pagination.vue';
 
 interface SearchData {
   사건명: string;
@@ -54,15 +45,31 @@ interface SearchData {
 }
 
 const inputValue = ref('');
+const tempInputValue = ref('');
 const search = ref<SearchData | SearchData[] | null>(null);
 const totalCnt = ref<number>(0);
-const router = useRouter(); // 라우터 인스턴스 가져오기
-const searchAPI = import.meta.env.VITE_LAW_SEARCH
+const currentPage = ref<number>(1);
+const itemsPerPage = 20;
+const router = useRouter();
+const searchAPI = import.meta.env.VITE_LAW_SEARCH;
+
+const totalPages = computed(() => Math.ceil(totalCnt.value / itemsPerPage));
+
+const paginatedResults = computed(() => {
+  if (Array.isArray(search.value)) {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return search.value.slice(start, end);
+  }
+  return search.value;
+});
 
 const submitValue = async () => {
+  inputValue.value = tempInputValue.value;
+  currentPage.value = 1; // 검색 시 페이지를 초기화
   try {
     const response = await axios.post(`${searchAPI}${inputValue.value}`);
-    if (Number(response.data.PrecSearch.totalCnt) === 0){
+    if (Number(response.data.PrecSearch.totalCnt) === 0) {
       alert("검색 결과 없음!");
       search.value = null;
       totalCnt.value = 0;
@@ -72,18 +79,33 @@ const submitValue = async () => {
     totalCnt.value = response.data.PrecSearch.totalCnt;
   } catch (error) {
     console.error('API 요청 실패:', error);
-    search.value = null; // 에러 발생 시 null로 설정
+    search.value = null;
   }
 };
 
-// 판례를 클릭했을 때 호출되는 함수
+const pageChangeAPI = async () => {
+  try {
+    const response = await axios.post(`${searchAPI}${inputValue.value}&page=${currentPage.value}`);
+    search.value = response.data.PrecSearch.prec;
+    console.log(search.value);
+  } catch (error) {
+    console.error('API 요청 실패:', error);
+    search.value = null;
+  }
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page;
+  pageChangeAPI();
+};
+
 const navigateToDetail = (caseId: number) => {
-  router.push({ name: 'LawDetail', params: { caseId } }); // LawDetail 페이지로 네비게이션
+  router.push({ name: 'LawDetail', params: { caseId } });
 };
 </script>
 
 <style>
-/* 이전 스타일 그대로 유지 */
+/* 스타일 그대로 유지 */
 .home {
   display: grid;
   min-height: 100vh;

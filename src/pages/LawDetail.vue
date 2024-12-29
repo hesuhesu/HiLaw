@@ -18,13 +18,12 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 interface Data {
-  판례정보일련번호: string,
-  사건명: string,
-  선고일자: number,
-  판례내용: string
+  판례정보일련번호: string | null,
+  사건명: string | null,
+  선고일자: number | null,
+  판례내용: string | null
 }
 
-const inputValue = ref(''); // 입력 값을 저장할 ref
 const result = ref<Data | null>(null);
 const dataKey = import.meta.env.VITE_LAW_LINK;
 const router = useRouter(); // 라우터 인스턴스 가져오기

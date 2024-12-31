@@ -9,7 +9,7 @@
       <h2>"{{ inputValue }}" 검색 결과 ({{ totalCnt }}개)</h2>
       <div v-if="Array.isArray(search)">
         <CaseItem
-          v-for="(item, index) in paginatedResults"
+          v-for="(item, index) in search"
           :key="index"
           :item="item"
           @navigate="navigateToDetail"
@@ -54,15 +54,6 @@ const router = useRouter();
 const searchAPI = import.meta.env.VITE_LAW_SEARCH;
 
 const totalPages = computed(() => Math.ceil(totalCnt.value / itemsPerPage));
-
-const paginatedResults = computed(() => {
-  if (Array.isArray(search.value)) {
-    const start = (currentPage.value - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return search.value.slice(start, end);
-  }
-  return search.value;
-});
 
 const submitValue = async () => {
   inputValue.value = tempInputValue.value;

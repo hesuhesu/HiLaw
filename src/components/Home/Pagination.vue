@@ -1,5 +1,12 @@
 <template>
     <div class="pagination">
+      <!-- 제일 앞으로 가는 버튼 -->
+    <button 
+      :disabled="currentPage === 1" 
+      @click="$emit('page-changed', 1)"
+    >
+      <<
+    </button>
       <button 
         :disabled="currentPage === 1" 
         @click="$emit('page-changed', currentPage - 1)"
@@ -20,6 +27,13 @@
       >
         다음
       </button>
+      <!-- 제일 뒤로 가는 버튼 -->
+    <button 
+      :disabled="currentPage === totalPages" 
+      @click="$emit('page-changed', totalPages)"
+    >
+      >>
+    </button>
     </div>
   </template>
   
